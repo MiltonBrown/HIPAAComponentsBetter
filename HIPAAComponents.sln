@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27703.2000
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HIPAAComponents", "HIPAAComponents\HIPAAComponents.csproj", "{CBDEE2E6-A0F5-41C0-B6C5-2F913D617B13}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProcessHIPAABatches", "ProcessHIPAABatches\ProcessHIPAABatches.csproj", "{BBED5453-4C75-4679-A969-5A914518099B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{CBDEE2E6-A0F5-41C0-B6C5-2F913D617B13}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CBDEE2E6-A0F5-41C0-B6C5-2F913D617B13}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CBDEE2E6-A0F5-41C0-B6C5-2F913D617B13}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CBDEE2E6-A0F5-41C0-B6C5-2F913D617B13}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BBED5453-4C75-4679-A969-5A914518099B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BBED5453-4C75-4679-A969-5A914518099B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BBED5453-4C75-4679-A969-5A914518099B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BBED5453-4C75-4679-A969-5A914518099B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {1797B5D6-2EF3-4E05-838F-E3481AE8B361}
+	EndGlobalSection
+EndGlobal
