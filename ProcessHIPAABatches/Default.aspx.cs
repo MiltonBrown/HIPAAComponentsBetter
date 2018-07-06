@@ -25,11 +25,21 @@ namespace ProcessHIPAABatches
         private string strRepetitionSeparator;
         private string strElementSeparator;
         private string strUsage;
+        private int intSubmitterEDIContactID;
+        private string strContactFunctionCode;
+        private string strContactName;
+        private string strCommunicationNumberID;
+        private string strCommunicationNumber;
+        private string strCommunicationNumberID2;
+        private string strcommunicationNumber2;
+        private string strCommunicationNumberID3;
+        private string strcommunicationNumber3;
         #endregion
         protected void Page_Load(object sender, EventArgs e)
         {
             SqlClientDataOperations oSalient = new SqlClientDataOperations();
             DataSet oData = new DataSet();
+            DataSet oContact = new DataSet();
 
             try
             {
@@ -39,6 +49,9 @@ namespace ProcessHIPAABatches
                     oSalient.LoadDataSetFromStoredProc("usp_ListXChanges").Fill(oData);
                     this.dgInterchanges.DataSource = oData.Tables[0];
                     dgInterchanges.DataBind();
+                    oSalient.LoadDataSetFromStoredProc("usp_ListEDIContacts").Fill(oContact);
+                    dgEDIContacts.DataSource = oContact.Tables[0];
+                    dgEDIContacts.DataBind();
                 }
                 else
                 {
@@ -51,6 +64,15 @@ namespace ProcessHIPAABatches
                     strRepetitionSeparator = ViewState["strRepetitionSeparator"].ToString();
                     strElementSeparator = ViewState["strElementSeparator"].ToString();
                     strUsage = ViewState["strUsage"].ToString();
+                    intSubmitterEDIContactID = int.Parse(ViewState["SubmitterEDIContactID"].ToString());
+                    strContactFunctionCode = ViewState["ContactFunctionCode"].ToString();
+                    strContactName = ViewState["ContactName"].ToString();
+                    strCommunicationNumberID = ViewState["CommunicationNumberID"].ToString();
+                    strCommunicationNumber = ViewState["CommunicationNumber"].ToString();
+                    strCommunicationNumberID2 = ViewState["CommunicationNumberID2"].ToString();
+                    strcommunicationNumber2 = ViewState["communicationNumber2"].ToString();
+                    strCommunicationNumberID3 = ViewState["CommunicationNumberID3"].ToString();
+                    strcommunicationNumber3 = ViewState["CommunicationNumber3"].ToString();
                 }
             }
             catch (Exception ex)
@@ -85,13 +107,14 @@ namespace ProcessHIPAABatches
 
                 foreach (DataRow x in oBatchDS.Tables[0].Rows)
                 {
-                    intSegmentCount = 11;
+                    intSegmentCount = 12;
                     intSVCLineCount = 1;
                     o837P.Add(SetISA(x["BatchNumber"].ToString(), oBills.DefaultSep, oBills.EndOfSegment));
                     o837P.Add(SetGS(x["BatchNumber"].ToString(), oBills.DefaultSep, oBills.EndOfSegment));
                     o837P.Add(SetST(x["BatchNumber"].ToString(), oBills.DefaultSep, oBills.EndOfSegment));
                     o837P.Add(SetBHT(x["BatchNumber"].ToString(), oBills.DefaultSep, oBills.EndOfSegment));
                     o837P.Add(SetSubmitterName(x, oBills.DefaultSep, oBills.EndOfSegment));
+                    o837P.Add(SetEDIContact(oBills.DefaultSep, oBills.EndOfSegment));
                     o837P.Add(SetReceiverName(x, oBills.DefaultSep, oBills.EndOfSegment));
                     o837P.Add(SetBillingProviderLevel(1, oBills.DefaultSep, oBills.EndOfSegment));
                     o837P.Add(SetBillingProviderName(x, oBills.DefaultSep, oBills.EndOfSegment));
@@ -124,7 +147,7 @@ namespace ProcessHIPAABatches
 
                     int intBuffer = o837P[0].ToString().Length * (intSegmentCount + 6);
 
-                    StreamWriter oFS = new StreamWriter(ConfigurationManager.AppSettings["ResultsPath"].ToString() +  x["BatchNumber"].ToString() + ".EDI");
+                    StreamWriter oFS = new StreamWriter(ConfigurationManager.AppSettings["ResultsPath"].ToString() +  x["BatchNumber"].ToString() + "X2.TXT");
                     
                     foreach(string z in o837P)
                     {
@@ -323,6 +346,87 @@ namespace ProcessHIPAABatches
                 return "NM1" + strDefaultSep + "PR" + strDefaultSep + "2" + strDefaultSep + Q.NM103__PayerName +
                         strDefaultSep + Q.NM104 + strDefaultSep + Q.NM105 + strDefaultSep +
                         Q.NM106 + strDefaultSep + Q.NM107 + strDefaultSep + "PI" + strDefaultSep + Q.NM109__PayerIdentifier + strEOS;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        protected string SetEDIContact(string strDefaultSep,string strEOS)
+        {
+            PER_SubmitterEDIContactInformation_1000A P = new PER_SubmitterEDIContactInformation_1000A();
+            string strReturn;
+
+            try
+            {
+                P.PER01__ContactFunctionCode = PER_SubmitterEDIContactInformation_1000APER01__ContactFunctionCode.IC;
+                P.PER02__SubmitterContactName = strContactName;
+                switch (strCommunicationNumberID)
+                {
+                    case "EM":
+                        P.PER03__CommunicationNumberQualifier = PER_SubmitterEDIContactInformation_1000APER03__CommunicationNumberQualifier.EM;
+                        break;
+                    case "FX":
+                        P.PER03__CommunicationNumberQualifier = PER_SubmitterEDIContactInformation_1000APER03__CommunicationNumberQualifier.FX;
+                        break;
+                    case "TE":
+                        P.PER03__CommunicationNumberQualifier = PER_SubmitterEDIContactInformation_1000APER03__CommunicationNumberQualifier.TE;
+                        break;
+                    default:
+                        break;
+                }                
+                P.PER04__CommunicationNumber = strCommunicationNumber;
+                switch (strCommunicationNumberID2)
+                {
+                    case "EM":
+                        P.PER05__CommunicationNumberQualifier = PER_SubmitterEDIContactInformation_1000APER05__CommunicationNumberQualifier.EM;
+                        break;
+                    case "EX":
+                        P.PER05__CommunicationNumberQualifier = PER_SubmitterEDIContactInformation_1000APER05__CommunicationNumberQualifier.EX;
+                        break;
+                    case "FX":
+                        P.PER05__CommunicationNumberQualifier = PER_SubmitterEDIContactInformation_1000APER05__CommunicationNumberQualifier.FX;
+                        break;
+                    case "TE":
+                        P.PER05__CommunicationNumberQualifier = PER_SubmitterEDIContactInformation_1000APER05__CommunicationNumberQualifier.TE;
+                        break;
+                    default:
+                        break;
+                }
+                P.PER06__CommunicationNumber = strcommunicationNumber2;
+                switch (strCommunicationNumberID2)
+                {
+                    case "EM":
+                        P.PER07__CommunicationNumberQualifier = PER_SubmitterEDIContactInformation_1000APER07__CommunicationNumberQualifier.EM;
+                        break;
+                    case "EX":
+                        P.PER07__CommunicationNumberQualifier = PER_SubmitterEDIContactInformation_1000APER07__CommunicationNumberQualifier.EX;
+                        break;
+                    case "FX":
+                        P.PER07__CommunicationNumberQualifier = PER_SubmitterEDIContactInformation_1000APER07__CommunicationNumberQualifier.FX;
+                        break;
+                    case "TE":
+                        P.PER07__CommunicationNumberQualifier = PER_SubmitterEDIContactInformation_1000APER07__CommunicationNumberQualifier.TE;
+                        break;
+                    default:
+                        break;
+                }
+                P.PER08__CommunicationNumber = strcommunicationNumber3;
+
+                strReturn = "PER" + strDefaultSep + "IC" + strDefaultSep + P.PER02__SubmitterContactName + strDefaultSep + P.PER03__CommunicationNumberQualifier + strDefaultSep + P.PER04__CommunicationNumberuuhh;
+                if(strCommunicationNumberID2.Length == 2)
+                {
+                    strReturn = strReturn + strDefaultSep + P.PER05__CommunicationNumberQualifier + strDefaultSep + P.PER06__CommunicationNumber;
+                    if (strCommunicationNumberID3.Length == 2)
+                    {
+                        strReturn = strReturn + strDefaultSep + P.PER07__CommunicationNumberQualifier + strDefaultSep + P.PER08__CommunicationNumber;
+                    }
+                }
+                
+                strReturn = strReturn + strEOS;
+
+                return strReturn;
             }
             catch (Exception ex)
             {
@@ -685,6 +789,35 @@ namespace ProcessHIPAABatches
                 ViewState["strUsage"] = strUsage;
             }
             catch(Exception ex)
+            {
+                Response.Write(ex.Message);
+            }
+        }
+
+        protected void dgEDIContacts_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            try
+            {
+                intSubmitterEDIContactID = int.Parse(dgEDIContacts.SelectedItem.Cells[0].Text);
+                strContactFunctionCode = dgEDIContacts.SelectedItem.Cells[1].Text;
+                strContactName = dgEDIContacts.SelectedItem.Cells[2].Text;
+                strCommunicationNumberID = dgEDIContacts.SelectedItem.Cells[3].Text;
+                strCommunicationNumber = dgEDIContacts.SelectedItem.Cells[4].Text;
+                strCommunicationNumberID2 = dgEDIContacts.SelectedItem.Cells[5].Text;
+                strcommunicationNumber2 = dgEDIContacts.SelectedItem.Cells[6].Text;
+                strCommunicationNumberID3 = dgEDIContacts.SelectedItem.Cells[7].Text;
+                strcommunicationNumber3 = dgEDIContacts.SelectedItem.Cells[8].Text;
+                ViewState["SubmitterEDIContactID"] = intSubmitterEDIContactID;
+                ViewState["ContactFunctionCode"] = strContactFunctionCode;
+                ViewState["ContactName"] = strContactName;
+                ViewState["CommunicationNumberID"] = strCommunicationNumberID;
+                ViewState["CommunicationNumber"] = strCommunicationNumber;
+                ViewState["CommunicationNumberID2"] = strCommunicationNumberID2;
+                ViewState["communicationNumber2"] = strcommunicationNumber2;
+                ViewState["CommunicationNumberID3"] = strCommunicationNumberID3;
+                ViewState["CommunicationNumber3"] = strcommunicationNumber3;
+            }
+            catch (Exception ex)
             {
                 Response.Write(ex.Message);
             }

@@ -28,6 +28,25 @@
     </div>
     <br />
     <br />
+    <div class="row">
+        <asp:DataGrid ID="dgEDIContacts" runat="server" Width="90%" AllowSorting="true" AutoGenerateColumns="false" BorderStyle="Solid" OnSelectedIndexChanged="dgEDIContacts_SelectedIndexChanged">
+            <Columns>
+                <asp:BoundColumn HeaderText="SubmitterEDIContactID" DataField="SubmitterEDIContactID" />
+                <asp:BoundColumn HeaderText="ContactFunction" DataField="ContactFunctionCode" />
+                <asp:BoundColumn HeaderText="ContactName" DataField="ContactName" />
+                <asp:BoundColumn HeaderText="ContactNumberID" DataField="CommunicationNumberID" />
+                <asp:BoundColumn HeaderText="ContactNumber" DataField="CommunicationNumber" />
+                <asp:BoundColumn HeaderText="ContactNumberID 2" DataField="CommunicationNumberID2" />
+                <asp:BoundColumn HeaderText="ContactNumber 2" DataField="CommunicationNumber2" />
+                <asp:BoundColumn HeaderText="ContactNumberID 3" DataField="CommunicationNumberID3" />
+                <asp:BoundColumn HeaderText="ContactNumber 3" DataField="CommunicationNumber3" />
+                <asp:ButtonColumn HeaderText="Select" Text="Select" CommandName="Select" ButtonType="PushButton" />
+            </Columns>
+            <HeaderStyle BorderStyle="Double" Font-Bold="true" BackColor="SlateGray" />
+        </asp:DataGrid>
+    </div>
+    <br />
+    <br />
     <div style="height: 25px; width: 2541px">
         <table>
             <tr>
