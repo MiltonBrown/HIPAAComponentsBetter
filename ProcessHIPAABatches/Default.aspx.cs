@@ -96,6 +96,8 @@ namespace ProcessHIPAABatches
             ArrayList o837P = new ArrayList();
             int intSegmentCount;
             int intSVCLineCount;
+            int intParent;
+            int intHLLevel;
                         
             try
             {                
@@ -107,8 +109,10 @@ namespace ProcessHIPAABatches
 
                 foreach (DataRow x in oBatchDS.Tables[0].Rows)
                 {
-                    intSegmentCount = 12;
+                    intSegmentCount = 10;
                     intSVCLineCount = 1;
+                    intParent = 1;
+                    intHLLevel = 2;
                     o837P.Add(SetISA(x["BatchNumber"].ToString(), oBills.DefaultSep, oBills.EndOfSegment));
                     o837P.Add(SetGS(x["BatchNumber"].ToString(), oBills.DefaultSep, oBills.EndOfSegment));
                     o837P.Add(SetST(x["BatchNumber"].ToString(), oBills.DefaultSep, oBills.EndOfSegment));
@@ -120,9 +124,7 @@ namespace ProcessHIPAABatches
                     o837P.Add(SetBillingProviderName(x, oBills.DefaultSep, oBills.EndOfSegment));
                     o837P.Add(SetBillingProviderAddress(x, oBills.DefaultSep, oBills.EndOfSegment));
                     o837P.Add(SetCityStateZip(x, oBills.DefaultSep, oBills.EndOfSegment));
-                    o837P.Add(SetTaxID(x, oBills.DefaultSep, oBills.EndOfSegment));
-                    o837P.Add(SetSubscriberLevel(2, 1, oBills.DefaultSep, oBills.EndOfSegment));
-                    o837P.Add(SetSBRSegment(x, oBills.DefaultSep, oBills.EndOfSegment));
+                    o837P.Add(SetTaxID(x, oBills.DefaultSep, oBills.EndOfSegment));                    
 
                     ArrayList oParams = new ArrayList();
                     oParams.Add(new System.Data.SqlClient.SqlParameter("@BatchNumber", x["BatchNumber"].ToString()));                    
@@ -130,6 +132,8 @@ namespace ProcessHIPAABatches
                     oSalient.LoadDataSet(oParams, "usp_GetClaimsByBatchNumber").Fill(oClaimsDS);
                     foreach(DataRow y in oClaimsDS.Tables[0].Rows)
                     {
+                        o837P.Add(SetSubscriberLevel(intHLLevel, intParent, oBills.DefaultSep, oBills.EndOfSegment));
+                        o837P.Add(SetSBRSegment(x, oBills.DefaultSep, oBills.EndOfSegment));
                         o837P.Add(SetSubscriberName(y, oBills.DefaultSep, oBills.EndOfSegment));
                         o837P.Add(SetPayerName(y, oBills.DefaultSep, oBills.EndOfSegment));
                         o837P.Add(SetClaimSegment(y, oBills.DefaultSep, oBills.EndOfSegment));
@@ -138,7 +142,8 @@ namespace ProcessHIPAABatches
                         o837P.Add(SetSV1Segment(y, oBills.DefaultSep, oBills.EndOfSegment));
                         o837P.Add(SetServiceDate(y, oBills.DefaultSep, oBills.EndOfSegment));
 
-                        intSegmentCount = intSegmentCount + 7;
+                        intSegmentCount = intSegmentCount + 9;
+                        intHLLevel += 1;
                     }
                     intSegmentCount = intSegmentCount + 1;
                     o837P.Add(SetSESegment(intSegmentCount, x["BatchNumber"].ToString(), oBills.DefaultSep, oBills.EndOfSegment));
@@ -147,7 +152,7 @@ namespace ProcessHIPAABatches
 
                     int intBuffer = o837P[0].ToString().Length * (intSegmentCount + 6);
 
-                    StreamWriter oFS = new StreamWriter(ConfigurationManager.AppSettings["ResultsPath"].ToString() +  x["BatchNumber"].ToString() + "X2.TXT");
+                    StreamWriter oFS = new StreamWriter(ConfigurationManager.AppSettings["ResultsPath"].ToString() +  x["NPI"].ToString() + "_837P_" + System.DateTime.Now.ToString("yyyyMMdd") + ".dat");
                     
                     foreach(string z in o837P)
                     {
@@ -156,7 +161,7 @@ namespace ProcessHIPAABatches
                         ArrayList oInsertParam = new ArrayList();
                         oInsertParam.Add(new System.Data.SqlClient.SqlParameter("@ControlNumber", x["BatchNumber"].ToString()));
                         oInsertParam.Add(new System.Data.SqlClient.SqlParameter("@LineSegment", z.ToString()));
-                        oSalient.ExecuteNonQuery(oInsertParam, "usp_InsertClaimLine");
+                        //oSalient.ExecuteNonQuery(oInsertParam, "usp_InsertClaimLine");
                     }
                 }
                 
@@ -414,7 +419,7 @@ namespace ProcessHIPAABatches
                 }
                 P.PER08__CommunicationNumber = strcommunicationNumber3;
 
-                strReturn = "PER" + strDefaultSep + "IC" + strDefaultSep + P.PER02__SubmitterContactName + strDefaultSep + P.PER03__CommunicationNumberQualifier + strDefaultSep + P.PER04__CommunicationNumberuuhh;
+                strReturn = "PER" + strDefaultSep + "IC" + strDefaultSep + P.PER02__SubmitterContactName + strDefaultSep + P.PER03__CommunicationNumberQualifier + strDefaultSep + P.PER04__CommunicationNumber;
                 if(strCommunicationNumberID2.Length == 2)
                 {
                     strReturn = strReturn + strDefaultSep + P.PER05__CommunicationNumberQualifier + strDefaultSep + P.PER06__CommunicationNumber;
