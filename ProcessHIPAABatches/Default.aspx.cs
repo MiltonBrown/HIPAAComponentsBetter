@@ -247,9 +247,9 @@ namespace ProcessHIPAABatches
                 //SV.SV101_CompositeMedicalProcedureIdentifier_2400.SV101_01_ProductOrServiceIDQualifier = SV1_ProfessionalService_2400SV101_CompositeMedicalProcedureIdentifier_2400SV101_01_ProductOrServiceIDQualifier.HC;
                 //SV.SV101_CompositeMedicalProcedureIdentifier_2400.SV101_02_ProcedureCode = x["ProcedureCode"].ToString();
                 //SV.SV101_CompositeMedicalProcedureIdentifier_2400.SV101_03_ProcedureModifier = x["Modifiers"].ToString();
-                SV.SV102__LineItemChargeAmount = x["RatePerUnit"].ToString();
+                SV.SV102__LineItemChargeAmount = x["RatePerUnit"].ToString().Replace(".0000",".00");
                 SV.SV103__UnitOrBasisForMeasurementCode = SV1_ProfessionalService_2400SV103__UnitOrBasisForMeasurementCode.UN;
-                SV.SV104__ServiceUnitCount = x["Units"].ToString();
+                SV.SV104__ServiceUnitCount = x["Units"].ToString().Replace(".0000","");
                 SV.SV105__PlaceOfServiceCode = x["POS"].ToString();
                 SV.SV106 = "";
                 //SV.SV107_CompositeDiagnosisCodePointer_2400.SV107_01_DiagnosisCodePointer = "1";
@@ -482,7 +482,7 @@ namespace ProcessHIPAABatches
                 SUB.SBR09__ClaimFilingIndicatorCode = SBR_SubscriberInformation_2000BSBR09__ClaimFilingIndicatorCode.MC;
 
                 return "SBR" + strDefault + "P" + strDefault + "18" + strDefault + SUB.SBR03__SubscriberGroupOrPolicyNumber + strDefault +
-                        SUB.SBR04__SubscriberGroupName + "" + strDefault + SUB.SBR06 + strDefault + SUB.SBR07 + strDefault + SUB.SBR08 +
+                        SUB.SBR04__SubscriberGroupName + strDefault + "" + strDefault + SUB.SBR06 + strDefault + SUB.SBR07 + strDefault + SUB.SBR08 + strDefault +
                         "MC" + strEOS;
 
             }
