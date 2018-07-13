@@ -135,6 +135,9 @@ namespace ProcessHIPAABatches
                         o837P.Add(SetSubscriberLevel(intHLLevel, intParent, oBills.DefaultSep, oBills.EndOfSegment));
                         o837P.Add(SetSBRSegment(x, oBills.DefaultSep, oBills.EndOfSegment));
                         o837P.Add(SetSubscriberName(y, oBills.DefaultSep, oBills.EndOfSegment));
+                        o837P.Add(SetBillingSubscriberAddress(y, oBills.DefaultSep, oBills.EndOfSegment));
+                        o837P.Add(SetSubscriberCityStateZip(y, oBills.DefaultSep, oBills.EndOfSegment));
+                        o837P.Add(SetSubscriberDemographics(y, oBills.DefaultSep, oBills.EndOfSegment));
                         o837P.Add(SetPayerName(y, oBills.DefaultSep, oBills.EndOfSegment));
                         o837P.Add(SetClaimSegment(y, oBills.DefaultSep, oBills.EndOfSegment));
                         o837P.Add(SetHISegment(y, oBills.DefaultSep, oBills.EndOfSegment));
@@ -142,7 +145,7 @@ namespace ProcessHIPAABatches
                         o837P.Add(SetSV1Segment(y, oBills.DefaultSep, oBills.EndOfSegment));
                         o837P.Add(SetServiceDate(y, oBills.DefaultSep, oBills.EndOfSegment));
 
-                        intSegmentCount = intSegmentCount + 9;
+                        intSegmentCount = intSegmentCount + 12;
                         intHLLevel += 1;
                     }
                     intSegmentCount = intSegmentCount + 1;
@@ -152,7 +155,7 @@ namespace ProcessHIPAABatches
 
                     int intBuffer = o837P[0].ToString().Length * (intSegmentCount + 6);
 
-                    StreamWriter oFS = new StreamWriter(ConfigurationManager.AppSettings["ResultsPath"].ToString() +  x["NPI"].ToString() + "_837P_" + System.DateTime.Now.ToString("yyyyMMdd") + ".dat");
+                    StreamWriter oFS = new StreamWriter(ConfigurationManager.AppSettings["ResultsPath"].ToString() +  x["NPI"].ToString() + "_837P_04_" + System.DateTime.Now.ToString("yyyyMMdd") + ".dat");
                     
                     foreach(string z in o837P)
                     {
@@ -161,7 +164,7 @@ namespace ProcessHIPAABatches
                         ArrayList oInsertParam = new ArrayList();
                         oInsertParam.Add(new System.Data.SqlClient.SqlParameter("@ControlNumber", x["BatchNumber"].ToString()));
                         oInsertParam.Add(new System.Data.SqlClient.SqlParameter("@LineSegment", z.ToString()));
-                        //oSalient.ExecuteNonQuery(oInsertParam, "usp_InsertClaimLine");
+                        oSalient.ExecuteNonQuery(oInsertParam, "usp_InsertClaimLine");
                     }
                 }
                 
@@ -471,17 +474,17 @@ namespace ProcessHIPAABatches
 
             try
             {
-                SUB.SBR01__PayerResponsibilitySequenceNumberCode = SBR_SubscriberInformation_2000BSBR01__PayerResponsibilitySequenceNumberCode.P;
+                SUB.SBR01__PayerResponsibilitySequenceNumberCode = SBR_SubscriberInformation_2000BSBR01__PayerResponsibilitySequenceNumberCode.U;
                 SUB.SBR02__IndividualRelationshipCode = SBR_SubscriberInformation_2000BSBR02__IndividualRelationshipCode.Item18;
                 SUB.SBR03__SubscriberGroupOrPolicyNumber = "";
-                SUB.SBR04__SubscriberGroupName = x["Payer"].ToString();
+                SUB.SBR04__SubscriberGroupName = "";
                 SUB.SBR05__InsuranceTypeCode = SBR_SubscriberInformation_2000BSBR05__InsuranceTypeCode.Item12;
                 SUB.SBR06 = "";
                 SUB.SBR07 = "";
                 SUB.SBR08 = "";
                 SUB.SBR09__ClaimFilingIndicatorCode = SBR_SubscriberInformation_2000BSBR09__ClaimFilingIndicatorCode.MC;
 
-                return "SBR" + strDefault + "P" + strDefault + "18" + strDefault + SUB.SBR03__SubscriberGroupOrPolicyNumber + strDefault +
+                return "SBR" + strDefault + "U" + strDefault + "18" + strDefault + SUB.SBR03__SubscriberGroupOrPolicyNumber + strDefault +
                         SUB.SBR04__SubscriberGroupName + strDefault + "" + strDefault + SUB.SBR06 + strDefault + SUB.SBR07 + strDefault + SUB.SBR08 + strDefault +
                         "MC" + strEOS;
 
@@ -540,6 +543,78 @@ namespace ProcessHIPAABatches
                 BC.N403__BillingProviderPostalZoneOrZIPCode = "64103";
 
                 return "N4" + strDefault + BC.N401__BillingProviderCityName + strDefault + BC.N402__BillingProviderStateOrProvinceCode + strDefault + BC.N403__BillingProviderPostalZoneOrZIPCode + strEOS;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        protected string SetSubscriberDemographics(DataRow x, string strDefaultSep,string strEOS)
+        {
+            DMG_SubscriberDemographicInformation_2010BA d = new DMG_SubscriberDemographicInformation_2010BA();
+
+            try
+            {
+                d.DMG01__DateTimePeriodFormatQualifier = DMG_SubscriberDemographicInformation_2010BADMG01__DateTimePeriodFormatQualifier.D8;
+                d.DMG02__SubscriberBirthDate = x["SubscriberDOB"].ToString();
+                switch (x["SubscriberGender"].ToString())
+                {
+                    case "M":
+                        d.DMG03__SubscriberGenderCode = DMG_SubscriberDemographicInformation_2010BADMG03__SubscriberGenderCode.M;
+                        break;
+                    case "F":
+                        d.DMG03__SubscriberGenderCode = DMG_SubscriberDemographicInformation_2010BADMG03__SubscriberGenderCode.F;
+                        break;
+                    default:
+                        d.DMG03__SubscriberGenderCode = DMG_SubscriberDemographicInformation_2010BADMG03__SubscriberGenderCode.U;
+                        break;
+                }
+
+                return "DMG" + strDefaultSep + "D8" + strDefaultSep + d.DMG02__SubscriberBirthDate + strDefaultSep + x["SubscriberGender"].ToString() + strEOS;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        protected string SetSubscriberCityStateZip(DataRow x, string strDefault, string strEOS)
+        {
+            N4_SubscriberCityStateZIPCode_2010BA BC = new N4_SubscriberCityStateZIPCode_2010BA();
+
+            try
+            {
+                BC.N401__SubscriberCityName = x["SubscriberCity"].ToString();
+                BC.N402__SubscriberStateCode = x["SubscriberState"].ToString();
+                BC.N403__SubscriberPostalZoneOrZIPCode = x["SubscriberZip"].ToString();
+
+                return "N4" + strDefault + BC.N401__SubscriberCityName + strDefault + BC.N402__SubscriberStateCode + strDefault + BC.N403__SubscriberPostalZoneOrZIPCode + strEOS;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        protected string SetBillingSubscriberAddress(DataRow x, string strDefaultSep, string strEOS)
+        {
+            N3_SubscriberAddress_2010BA A = new N3_SubscriberAddress_2010BA();
+            string strResults;
+
+            try
+            {
+                A.N301__SubscriberAddressLine = x["SubscriberAddress1"].ToString();
+                A.N302__SubscriberAddressLine = x["SubscriberAddress2"].ToString();
+
+                strResults = "N3" + strDefaultSep + A.N301__SubscriberAddressLine;
+                if (A.N302__SubscriberAddressLine.Length > 0)
+                {
+                    strResults = strResults + strDefaultSep + A.N302__SubscriberAddressLine;
+                }
+                strResults = strResults + strEOS;
+
+                return strResults;
             }
             catch (Exception ex)
             {
