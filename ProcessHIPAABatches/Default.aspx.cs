@@ -450,9 +450,9 @@ namespace ProcessHIPAABatches
             {
                 Q.NM101__EntityIdentifierCode = NM1_SubscriberName_2010BANM101__EntityIdentifierCode.IL;
                 Q.NM102__EntityTypeQualifier = NM1_SubscriberName_2010BANM102__EntityTypeQualifier.Item1;
-                Q.NM103__SubscriberLastName = x["Subscriber"].ToString();
-                Q.NM104__SubscriberFirstName = x["Subscriber"].ToString();
-                Q.NM105__SubscriberMiddleNameOrInitial = "";
+                Q.NM103__SubscriberLastName = x["SubscriberLast"].ToString();
+                Q.NM104__SubscriberFirstName = x["SubscriberFirst"].ToString();
+                Q.NM105__SubscriberMiddleNameOrInitial = x["SubscriberMiddle"].ToString();
                 Q.NM106 = "";
                 Q.NM107__SubscriberNameSuffix = "";
                 Q.NM108__IdentificationCodeQualifier = NM1_SubscriberName_2010BANM108__IdentificationCodeQualifier.MI;
