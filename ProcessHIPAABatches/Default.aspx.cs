@@ -158,6 +158,7 @@ namespace ProcessHIPAABatches
                         }
                         intSegmentCount = intSegmentCount + 9;
                         intHLLevel += 1;
+                        oLinesDS.Clear();
                     }
                     intSegmentCount = intSegmentCount + 1;
                     o837P.Add(SetSESegment(intSegmentCount, x["BatchNumber"].ToString(), oBills.DefaultSep, oBills.EndOfSegment));
