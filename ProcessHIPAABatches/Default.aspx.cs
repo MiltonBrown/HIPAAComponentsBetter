@@ -10,6 +10,7 @@ using System.Data;
 using System.Configuration;
 using HIPAAComponents;
 using System.IO;
+using System.Globalization;
 
 namespace ProcessHIPAABatches
 {
@@ -92,6 +93,7 @@ namespace ProcessHIPAABatches
             SqlClientDataOperations oSalient = new SqlClientDataOperations();
             DataSet oBatchDS = new DataSet();
             DataSet oClaimsDS = new DataSet();
+            DataSet oLinesDS = new DataSet();
             //string[] o837P;
             ArrayList o837P = new ArrayList();
             int intSegmentCount;
@@ -141,11 +143,20 @@ namespace ProcessHIPAABatches
                         o837P.Add(SetPayerName(y, oBills.DefaultSep, oBills.EndOfSegment));
                         o837P.Add(SetClaimSegment(y, oBills.DefaultSep, oBills.EndOfSegment));
                         o837P.Add(SetHISegment(y, oBills.DefaultSep, oBills.EndOfSegment));
-                        o837P.Add(SetLXSegment(intSVCLineCount, oBills.DefaultSep, oBills.EndOfSegment));
-                        o837P.Add(SetSV1Segment(y, oBills.DefaultSep, oBills.EndOfSegment));
-                        o837P.Add(SetServiceDate(y, oBills.DefaultSep, oBills.EndOfSegment));
 
-                        intSegmentCount = intSegmentCount + 12;
+                        ArrayList oSVCParams = new ArrayList();
+                        oSVCParams.Add(new System.Data.SqlClient.SqlParameter("@BatchNumber", x["BatchNumber"].ToString()));
+                        oSVCParams.Add(new System.Data.SqlClient.SqlParameter("@SubscriberID", y["ClaimsBatchID"].ToString()));
+
+                        oSalient.LoadDataSet(oSVCParams, "usp_GetSVCLinesByBatchAndClaim").Fill(oLinesDS);
+                        foreach(DataRow q in oLinesDS.Tables[0].Rows)
+                        { 
+                            o837P.Add(SetLXSegment(intSVCLineCount, oBills.DefaultSep, oBills.EndOfSegment));
+                            o837P.Add(SetSV1Segment(q, oBills.DefaultSep, oBills.EndOfSegment));
+                            o837P.Add(SetServiceDate(q, oBills.DefaultSep, oBills.EndOfSegment));
+                            intSegmentCount = intSegmentCount + 3;
+                        }
+                        intSegmentCount = intSegmentCount + 9;
                         intHLLevel += 1;
                     }
                     intSegmentCount = intSegmentCount + 1;
@@ -155,7 +166,7 @@ namespace ProcessHIPAABatches
 
                     int intBuffer = o837P[0].ToString().Length * (intSegmentCount + 6);
 
-                    StreamWriter oFS = new StreamWriter(ConfigurationManager.AppSettings["ResultsPath"].ToString() +  x["NPI"].ToString() + "_837P_04_" + System.DateTime.Now.ToString("yyyyMMdd") + ".dat");
+                    StreamWriter oFS = new StreamWriter(ConfigurationManager.AppSettings["ResultsPath"].ToString() +  x["NPI"].ToString() + "_837P_" + System.DateTime.Now.ToString("yyyyMMdd") + ".dat");
                     
                     foreach(string z in o837P)
                     {
@@ -164,7 +175,7 @@ namespace ProcessHIPAABatches
                         ArrayList oInsertParam = new ArrayList();
                         oInsertParam.Add(new System.Data.SqlClient.SqlParameter("@ControlNumber", x["BatchNumber"].ToString()));
                         oInsertParam.Add(new System.Data.SqlClient.SqlParameter("@LineSegment", z.ToString()));
-                        oSalient.ExecuteNonQuery(oInsertParam, "usp_InsertClaimLine");
+                        //oSalient.ExecuteNonQuery(oInsertParam, "usp_InsertClaimLine");
                     }
                 }
                 
@@ -313,7 +324,7 @@ namespace ProcessHIPAABatches
             try
             {
                 CLM.CLM01__PatientControlNumber = x["ClaimsBatchID"].ToString();
-                CLM.CLM02__TotalClaimChargeAmount = x["RatePerUnit"].ToString().Replace(".00","");
+                CLM.CLM02__TotalClaimChargeAmount = x["RatePerUnit"].ToString();
                 CLM.CLM03 = "";
                 CLM.CLM04 = "";
                 CLM05.CLM05_01_PlaceOfServiceCode = x["POS"].ToString();
@@ -538,9 +549,9 @@ namespace ProcessHIPAABatches
 
             try
             {
-                BC.N401__BillingProviderCityName = "Avg City";
+                BC.N401__BillingProviderCityName = "St. Paul";
                 BC.N402__BillingProviderStateOrProvinceCode = "MN";
-                BC.N403__BillingProviderPostalZoneOrZIPCode = "64103";
+                BC.N403__BillingProviderPostalZoneOrZIPCode = "55107";
 
                 return "N4" + strDefault + BC.N401__BillingProviderCityName + strDefault + BC.N402__BillingProviderStateOrProvinceCode + strDefault + BC.N403__BillingProviderPostalZoneOrZIPCode + strEOS;
             }
@@ -628,7 +639,7 @@ namespace ProcessHIPAABatches
 
             try
             {
-                A.N301__BillingProviderAddressLine = "1234 Major Street";
+                A.N301__BillingProviderAddressLine = "30 East Plato Boulevard";
 
                 return "N3" + strDefaultSep + A.N301__BillingProviderAddressLine + strEOS;
             }
