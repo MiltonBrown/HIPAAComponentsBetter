@@ -152,6 +152,7 @@ namespace ProcessHIPAABatches
                         foreach(DataRow q in oLinesDS.Tables[0].Rows)
                         { 
                             o837P.Add(SetLXSegment(intSVCLineCount, oBills.DefaultSep, oBills.EndOfSegment));
+                            intSVCLineCount += 1;
                             o837P.Add(SetSV1Segment(q, oBills.DefaultSep, oBills.EndOfSegment));
                             o837P.Add(SetServiceDate(q, oBills.DefaultSep, oBills.EndOfSegment));
                             intSegmentCount = intSegmentCount + 3;
@@ -159,6 +160,7 @@ namespace ProcessHIPAABatches
                         intSegmentCount = intSegmentCount + 9;
                         intHLLevel += 1;
                         oLinesDS.Clear();
+                        intSVCLineCount = 1;
                     }
                     intSegmentCount = intSegmentCount + 1;
                     o837P.Add(SetSESegment(intSegmentCount, x["BatchNumber"].ToString(), oBills.DefaultSep, oBills.EndOfSegment));
@@ -325,7 +327,7 @@ namespace ProcessHIPAABatches
             try
             {
                 CLM.CLM01__PatientControlNumber = x["ClaimsBatchID"].ToString();
-                CLM.CLM02__TotalClaimChargeAmount = x["RatePerUnit"].ToString();
+                CLM.CLM02__TotalClaimChargeAmount = string.Format("{0:0.00}",x["RatePerUnit"]);
                 CLM.CLM03 = "";
                 CLM.CLM04 = "";
                 CLM05.CLM05_01_PlaceOfServiceCode = x["POS"].ToString();
