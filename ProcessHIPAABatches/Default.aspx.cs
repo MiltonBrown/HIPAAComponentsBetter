@@ -142,6 +142,7 @@ namespace ProcessHIPAABatches
                         o837P.Add(SetSubscriberDemographics(y, oBills.DefaultSep, oBills.EndOfSegment));
                         o837P.Add(SetPayerName(y, oBills.DefaultSep, oBills.EndOfSegment));
                         o837P.Add(SetClaimSegment(y, oBills.DefaultSep, oBills.EndOfSegment));
+                        o837P.Add(SetPriorAuthorization(y, oBills.DefaultSep, oBills.EndOfSegment));
                         o837P.Add(SetHISegment(y, oBills.DefaultSep, oBills.EndOfSegment));
 
                         ArrayList oSVCParams = new ArrayList();
@@ -157,7 +158,7 @@ namespace ProcessHIPAABatches
                             o837P.Add(SetServiceDate(q, oBills.DefaultSep, oBills.EndOfSegment));
                             intSegmentCount = intSegmentCount + 3;
                         }
-                        intSegmentCount = intSegmentCount + 9;
+                        intSegmentCount = intSegmentCount + 10;
                         intHLLevel += 1;
                         oLinesDS.Clear();
                         intSVCLineCount = 1;
@@ -312,6 +313,20 @@ namespace ProcessHIPAABatches
                 //HI.HI01_HealthCareCodeInformation_2300.HI01_02_DiagnosisCode = x["DiagnosisCode"].ToString();
 
                 return "HI" + strDefaultSep + "ABK" + strElementSeparator + x["DiagnosisCode"].ToString() + strEOS;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        protected string SetPriorAuthorization(DataRow x,string strDefaultSep,string strEOS)
+        {
+            REF_PriorAuthorization_2300 REF = new REF_PriorAuthorization_2300();
+
+            try
+            {
+                return "REF" + strDefaultSep + "G1" + strDefaultSep + x["ServiceAgreementNo"].ToString() + strEOS;
             }
             catch (Exception ex)
             {
